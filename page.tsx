@@ -1,703 +1,412 @@
-"use client"
-
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Brain,
-  Star,
-  Send,
-  CheckCircle,
-  XCircle,
-  Clock,
-  AlertTriangle,
-  LogOut,
-  Filter,
-  Download,
-  Eye,
-  Calendar,
-  Building,
-  Home,
-  Car,
-  GraduationCap,
-  Heart,
-} from "lucide-react"
+import { MessageSquare, BarChart3, Brain, CheckCircle, ArrowRight, Zap, Shield, Globe } from "lucide-react"
 import Link from "next/link"
 
-export default function GovernmentDashboard() {
-  const [selectedFeedback, setSelectedFeedback] = useState(null)
-  const [replyText, setReplyText] = useState("")
-
-  // Mock data for citizen feedback with issues
-  const [citizenFeedback, setCitizenFeedback] = useState([
-    {
-      id: 1,
-      citizenName: "John Smith",
-      email: "john.smith@email.com",
-      service: "Housing Services",
-      serviceId: "HS-2024-001",
-      rating: 2,
-      feedback:
-        "The housing application process was confusing and took too long. I had to visit the office multiple times because the online system kept crashing.",
-      issue: "System crashes during application submission",
-      date: new Date("2024-01-15"),
-      status: "pending",
-      priority: "high",
-      urgency: "System technical issues affecting multiple users",
-    },
-    {
-      id: 2,
-      citizenName: "Sarah Johnson",
-      email: "sarah.j@email.com",
-      service: "Transportation",
-      serviceId: "TR-2024-002",
-      rating: 3,
-      feedback:
-        "Parking permit application was okay but the processing time was much longer than advertised. Website said 3 days but it took 2 weeks.",
-      issue: "Processing delays beyond advertised timeframe",
-      date: new Date("2024-01-14"),
-      status: "pending",
-      priority: "medium",
-      urgency: "Processing time expectations not met",
-    },
-    {
-      id: 3,
-      citizenName: "Mike Davis",
-      email: "mike.davis@email.com",
-      service: "Health Services",
-      serviceId: "HS-2024-003",
-      rating: 1,
-      feedback:
-        "Terrible experience trying to book vaccination appointment. The system is completely broken and customer service was unhelpful.",
-      issue: "Booking system malfunction and poor customer service",
-      date: new Date("2024-01-13"),
-      status: "pending",
-      priority: "high",
-      urgency: "Critical system failure affecting public health services",
-    },
-    {
-      id: 4,
-      citizenName: "Emma Wilson",
-      email: "emma.w@email.com",
-      service: "Business Permits",
-      serviceId: "BP-2024-004",
-      rating: 4,
-      feedback:
-        "Overall good experience but the document upload feature could be improved. Had some issues with file size limits.",
-      issue: "Document upload limitations",
-      date: new Date("2024-01-12"),
-      status: "replied",
-      priority: "low",
-      urgency: "Minor technical improvement needed",
-      reply:
-        "Thank you for your feedback! We're working on increasing file size limits and improving the upload interface. We'll notify you when these improvements are implemented.",
-    },
-  ])
-
-  // Mock data for service access requests that need approval
-  const [serviceRequests, setServiceRequests] = useState([
-    {
-      id: "HS-2024-005",
-      citizenName: "Alice Brown",
-      email: "alice.brown@email.com",
-      service: "Housing Services",
-      requestType: "Emergency Housing Assistance",
-      description:
-        "Single mother with 2 children facing immediate eviction. Lost job due to company closure and need urgent housing assistance.",
-      submittedDate: new Date("2024-01-16"),
-      status: "pending",
-      priority: "urgent",
-      urgentIssue: "Eviction notice expires in 3 days - family will be homeless",
-      applicationDetails: {
-        familySize: "3 (mother + 2 children ages 5 and 8)",
-        currentIncome: "$0 (recently unemployed)",
-        currentHousing: "Rental apartment - eviction pending",
-        assistanceNeeded: "Emergency housing placement",
-        timeframe: "Immediate (within 72 hours)",
-      },
-      documents: ["eviction_notice.pdf", "termination_letter.pdf", "children_school_records.pdf", "id_documents.pdf"],
-      serviceIcon: Home,
-    },
-    {
-      id: "TR-2024-006",
-      citizenName: "Robert Wilson",
-      email: "robert.w@email.com",
-      service: "Transportation",
-      requestType: "Commercial Food Truck Permit",
-      description:
-        "Applying for permit to operate food truck in downtown business district. Family business serving authentic Mexican cuisine.",
-      submittedDate: new Date("2024-01-15"),
-      status: "pending",
-      priority: "medium",
-      urgentIssue: "Business loan payment due soon - need to start operations",
-      applicationDetails: {
-        businessName: "Wilson's Authentic Tacos",
-        vehicleType: "2020 Ford Transit Food Truck",
-        operatingHours: "11 AM - 8 PM, Monday-Saturday",
-        proposedLocation: "Downtown Business District",
-        expectedCustomers: "50-100 per day",
-      },
-      documents: ["business_license.pdf", "vehicle_inspection.pdf", "health_permit.pdf", "insurance_cert.pdf"],
-      serviceIcon: Car,
-    },
-    {
-      id: "ED-2024-007",
-      citizenName: "Maria Garcia",
-      email: "maria.g@email.com",
-      service: "Education Services",
-      requestType: "Special Education Services",
-      description:
-        "Requesting special education evaluation and services for 7-year-old son with learning disabilities.",
-      submittedDate: new Date("2024-01-14"),
-      status: "approved",
-      priority: "high",
-      urgentIssue: "Child falling behind in current grade level",
-      applicationDetails: {
-        studentName: "Carlos Garcia",
-        studentAge: "7 years old",
-        currentGrade: "2nd Grade",
-        concernedAreas: "Reading comprehension, attention span",
-        requestedServices: "Educational assessment, IEP development",
-      },
-      documents: ["medical_records.pdf", "teacher_reports.pdf", "previous_assessments.pdf"],
-      serviceIcon: GraduationCap,
-    },
-    {
-      id: "HL-2024-008",
-      citizenName: "David Kim",
-      email: "david.kim@email.com",
-      service: "Health Services",
-      requestType: "Medical Assistance Program",
-      description: "Applying for medical assistance due to chronic illness and inability to afford treatment.",
-      submittedDate: new Date("2024-01-13"),
-      status: "pending",
-      priority: "urgent",
-      urgentIssue: "Requires ongoing medication that is currently unaffordable",
-      applicationDetails: {
-        medicalCondition: "Type 1 Diabetes",
-        monthlyMedicationCost: "$400",
-        currentIncome: "$1,200/month",
-        insuranceStatus: "Uninsured",
-        treatmentUrgency: "Daily insulin required",
-      },
-      documents: ["medical_diagnosis.pdf", "prescription_records.pdf", "income_statement.pdf", "bank_statements.pdf"],
-      serviceIcon: Heart,
-    },
-    {
-      id: "BP-2024-009",
-      citizenName: "Lisa Chen",
-      email: "lisa.chen@email.com",
-      service: "Business Permits",
-      requestType: "Home Daycare License",
-      description: "Applying for license to operate home-based daycare for up to 6 children in residential area.",
-      submittedDate: new Date("2024-01-12"),
-      status: "pending",
-      priority: "medium",
-      urgentIssue: "Parents already committed to enrollment starting next month",
-      applicationDetails: {
-        businessType: "Home-based childcare",
-        maxChildren: "6 children (ages 2-5)",
-        operatingHours: "7 AM - 6 PM, Monday-Friday",
-        homeAddress: "123 Maple Street, Residential Zone",
-        experience: "10 years childcare experience, Early Childhood Education degree",
-      },
-      documents: ["home_inspection.pdf", "background_check.pdf", "education_certificates.pdf", "references.pdf"],
-      serviceIcon: Building,
-    },
-  ])
-
-  const handleFeedbackReply = (feedbackId: number) => {
-    if (!replyText.trim()) {
-      alert("Please enter a reply message.")
-      return
-    }
-
-    setCitizenFeedback((prev) =>
-      prev.map((feedback) =>
-        feedback.id === feedbackId ? { ...feedback, status: "replied", reply: replyText } : feedback,
-      ),
-    )
-    setReplyText("")
-    setSelectedFeedback(null)
-    alert("Reply sent successfully! The citizen will be notified via email.")
-  }
-
-  const handleServiceRequest = (requestId: string, action: "approve" | "reject", reason?: string) => {
-    setServiceRequests((prev) =>
-      prev.map((request) =>
-        request.id === requestId
-          ? {
-              ...request,
-              status: action === "approve" ? "approved" : "rejected",
-              actionReason:
-                reason ||
-                (action === "approve"
-                  ? "Application meets all requirements"
-                  : "Application requires additional documentation"),
-            }
-          : request,
-      ),
-    )
-
-    const actionText = action === "approve" ? "approved" : "rejected"
-    alert(`Service request ${actionText} successfully! Citizen will be notified via email with next steps.`)
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-100 text-yellow-800"
-      case "approved":
-        return "bg-green-100 text-green-800"
-      case "rejected":
-        return "bg-red-100 text-red-800"
-      case "replied":
-        return "bg-blue-100 text-blue-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
-  }
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "urgent":
-        return "bg-red-100 text-red-800 border-red-300"
-      case "high":
-        return "bg-orange-100 text-orange-800 border-orange-300"
-      case "medium":
-        return "bg-yellow-100 text-yellow-800 border-yellow-300"
-      case "low":
-        return "bg-green-100 text-green-800 border-green-300"
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-300"
-    }
-  }
-
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-                <Brain className="w-5 h-5 text-white" />
+      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+              <Brain className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold text-gray-900">Citizen AI</span>
+          </div>
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link href="#features" className="text-gray-600 hover:text-emerald-600 transition-colors">
+              Features
+            </Link>
+            <Link href="#scenarios" className="text-gray-600 hover:text-emerald-600 transition-colors">
+              Scenarios
+            </Link>
+            <Link href="#demo" className="text-gray-600 hover:text-emerald-600 transition-colors">
+              Demo
+            </Link>
+            <Link href="/login" className="text-gray-600 hover:text-emerald-600 transition-colors">
+              Login
+            </Link>
+            <Button className="bg-emerald-600 hover:bg-emerald-700">Get Started</Button>
+          </nav>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto text-center max-w-4xl">
+          <Badge className="mb-4 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+            Powered by IBM Granite & Watson AI
+          </Badge>
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            Intelligent Citizen
+            <span className="text-emerald-600"> Engagement</span>
+            <br />
+            Platform
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+            Revolutionize government-citizen interactions with AI-driven responses, real-time sentiment analysis, and
+            data-driven insights for enhanced public service delivery.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-lg px-8 py-3">
+              Start Free Trial
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 py-3 border-gray-300 hover:bg-gray-50">
+              Watch Demo
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Key Benefits */}
+      <section className="py-16 px-4 bg-white">
+        <div className="container mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Zap className="w-6 h-6 text-emerald-600" />
               </div>
-              <span className="text-xl font-bold text-gray-900">Citizen AI - Government Portal</span>
+              <h3 className="text-lg font-semibold mb-2">24/7 Availability</h3>
+              <p className="text-gray-600">Instant AI responses to citizen inquiries around the clock</p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Shield className="w-6 h-6 text-emerald-600" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Enhanced Trust</h3>
+              <p className="text-gray-600">Transparent, data-driven governance builds public confidence</p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Globe className="w-6 h-6 text-emerald-600" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Improved Efficiency</h3>
+              <p className="text-gray-600">Automate routine interactions and streamline service delivery</p>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3">
-              <Avatar>
-                <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                <AvatarFallback>GA</AvatarFallback>
-              </Avatar>
-              <div className="text-sm">
-                <p className="font-medium text-gray-900">Government Admin</p>
-                <p className="text-gray-500">Multi-Department Access</p>
-              </div>
-            </div>
-            <Link href="/login">
-              <Button variant="outline" size="sm">
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
+        </div>
+      </section>
+
+      {/* Core Scenarios */}
+      <section id="scenarios" className="py-20 px-4 bg-gradient-to-br from-gray-50 to-slate-100">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Core Scenarios</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Four powerful AI-driven scenarios designed to transform citizen-government interactions
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            {/* Scenario 1 */}
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow bg-white">
+              <CardHeader>
+                <div className="flex items-center space-x-3 mb-2">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <MessageSquare className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <Badge variant="secondary">Scenario 1</Badge>
+                </div>
+                <CardTitle className="text-xl">Real-Time Conversational AI Assistant</CardTitle>
+                <CardDescription className="text-base">
+                  Natural language interface powered by IBM Granite models
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Citizens can engage with public services naturally by typing questions or requests. The system
+                  provides instant, human-like responses for information access, support, and task completion like issue
+                  reporting.
+                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 mr-2" />
+                    Instant AI-powered responses
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 mr-2" />
+                    24/7 availability
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 mr-2" />
+                    Natural language processing
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Scenario 2 */}
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow bg-white">
+              <CardHeader>
+                <div className="flex items-center space-x-3 mb-2">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <Badge variant="secondary">Scenario 2</Badge>
+                </div>
+                <CardTitle className="text-xl">Citizen Sentiment Analysis</CardTitle>
+                <CardDescription className="text-base">
+                  AI-powered sentiment tracking and public mood analysis
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Analyzes citizen feedback to classify sentiment as Positive, Neutral, or Negative. Helps government
+                  quickly identify areas of satisfaction or concern for improved service delivery.
+                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 mr-2" />
+                    Real-time sentiment classification
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 mr-2" />
+                    Public mood tracking
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 mr-2" />
+                    Issue identification
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Scenario 3 */}
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow bg-white">
+              <CardHeader>
+                <div className="flex items-center space-x-3 mb-2">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <Badge variant="secondary">Scenario 3</Badge>
+                </div>
+                <CardTitle className="text-xl">Dynamic Dashboard</CardTitle>
+                <CardDescription className="text-base">
+                  Real-time insights and analytics for government officials
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Central hub for real-time citizen feedback insights, visualizing sentiment trends, interaction
+                  patterns, and service ratings to enable data-driven decision making.
+                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 mr-2" />
+                    Real-time visualizations
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 mr-2" />
+                    Trend analysis
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 mr-2" />
+                    Actionable insights
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Scenario 4 */}
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow bg-white">
+              <CardHeader>
+                <div className="flex items-center space-x-3 mb-2">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <Brain className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <Badge variant="secondary">Scenario 4</Badge>
+                </div>
+                <CardTitle className="text-xl">Personalized & Contextual Response System</CardTitle>
+                <CardDescription className="text-base">Advanced NLU for tailored citizen interactions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Powered by IBM Granite models with advanced natural language understanding, providing relevant,
+                  tailored responses that understand context and specific citizen needs.
+                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 mr-2" />
+                    Context-aware responses
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 mr-2" />
+                    Personalized interactions
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 mr-2" />
+                    Advanced NLU capabilities
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Technology Stack */}
+      <section className="py-16 px-4 bg-white">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">Powered by Leading AI Technology</h2>
+          <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
+            <div className="text-2xl font-bold text-gray-700">IBM Granite</div>
+            <div className="text-2xl font-bold text-gray-700">IBM Watson</div>
+            <div className="text-2xl font-bold text-gray-700">Flask</div>
+            <div className="text-2xl font-bold text-gray-700">Natural Language Processing</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Login Section */}
+      <section id="login" className="py-20 px-4 bg-slate-50">
+        <div className="container mx-auto text-center">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">Access Your Account</h2>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Sign in to access the Citizen AI platform and start engaging with government services or managing your
+            dashboard.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+            <Link href="/login" className="flex-1">
+              <Button size="lg" className="w-full bg-emerald-600 hover:bg-emerald-700 text-lg px-8 py-3">
+                Citizen Login
+              </Button>
+            </Link>
+            <Link href="/login?type=government" className="flex-1">
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full text-lg px-8 py-3 border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+              >
+                Government Login
               </Button>
             </Link>
           </div>
         </div>
-      </header>
+      </section>
 
-      {/* Main Content */}
-      <main className="p-6">
-        {/* Stats Overview */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Pending Issues</p>
-                  <p className="text-2xl font-bold text-red-600">
-                    {citizenFeedback.filter((f) => f.status === "pending").length}
-                  </p>
-                </div>
-                <AlertTriangle className="w-8 h-8 text-red-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Service Requests</p>
-                  <p className="text-2xl font-bold text-yellow-600">
-                    {serviceRequests.filter((r) => r.status === "pending").length}
-                  </p>
-                </div>
-                <Clock className="w-8 h-8 text-yellow-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Approved Today</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {serviceRequests.filter((r) => r.status === "approved").length}
-                  </p>
-                </div>
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Urgent Cases</p>
-                  <p className="text-2xl font-bold text-red-600">
-                    {serviceRequests.filter((r) => r.priority === "urgent").length}
-                  </p>
-                </div>
-                <AlertTriangle className="w-8 h-8 text-red-600" />
-              </div>
-            </CardContent>
-          </Card>
+      {/* CTA Section */}
+      <section className="py-20 px-4 bg-emerald-600">
+        <div className="container mx-auto text-center">
+          <h2 className="text-4xl font-bold text-white mb-4">Ready to Transform Citizen Engagement?</h2>
+          <p className="text-xl text-emerald-100 mb-8 max-w-2xl mx-auto">
+            Join forward-thinking governments using AI to improve public service delivery and build stronger citizen
+            relationships.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="bg-white text-emerald-600 hover:bg-gray-100 text-lg px-8 py-3">
+              Schedule Demo
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-white text-white hover:bg-white hover:text-emerald-600 text-lg px-8 py-3"
+            >
+              Contact Sales
+            </Button>
+          </div>
         </div>
+      </section>
 
-        {/* Main Tabs */}
-        <Tabs defaultValue="issues" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
-            <TabsTrigger value="issues">Citizen Issues & Feedback</TabsTrigger>
-            <TabsTrigger value="approvals">Service Approvals</TabsTrigger>
-          </TabsList>
-
-          {/* Citizen Issues & Feedback Tab */}
-          <TabsContent value="issues" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Citizen Issues & Feedback</h2>
-                <p className="text-gray-600">Review and respond to citizen feedback and reported issues</p>
+      {/* Footer */}
+      <footer className="py-12 px-4 bg-gray-900 text-white">
+        <div className="container mx-auto">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+                  <Brain className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold">Citizen AI</span>
               </div>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filter by Priority
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export Report
-                </Button>
-              </div>
+              <p className="text-gray-400">
+                Revolutionizing government-citizen interactions through intelligent AI technology.
+              </p>
             </div>
-
-            <div className="grid gap-6">
-              {citizenFeedback.map((feedback) => (
-                <Card key={feedback.id} className="border-l-4 border-l-red-500">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <Avatar>
-                          <AvatarFallback>
-                            {feedback.citizenName
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-gray-900">{feedback.citizenName}</p>
-                          <p className="text-sm text-gray-600">{feedback.email}</p>
-                          <p className="text-xs text-gray-500">Service ID: {feedback.serviceId}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge className={getPriorityColor(feedback.priority)} variant="outline">
-                          {feedback.priority.toUpperCase()}
-                        </Badge>
-                        <Badge className={getStatusColor(feedback.status)}>{feedback.status}</Badge>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {/* Service and Rating */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-600">Service: {feedback.service}</span>
-                        <div className="flex items-center">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`w-4 h-4 ${star <= feedback.rating ? "text-red-400 fill-current" : "text-gray-300"}`}
-                            />
-                          ))}
-                          <span className="ml-2 text-sm text-gray-600">({feedback.rating}/5)</span>
-                        </div>
-                      </div>
-
-                      {/* Reported Issue */}
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <AlertTriangle className="w-4 h-4 text-red-600" />
-                          <span className="text-sm font-medium text-red-800">Reported Issue:</span>
-                        </div>
-                        <p className="text-sm text-red-700 font-medium">{feedback.issue}</p>
-                        <p className="text-sm text-red-600 mt-1">{feedback.urgency}</p>
-                      </div>
-
-                      {/* Citizen Feedback */}
-                      <div>
-                        <p className="text-sm font-medium text-gray-600 mb-2">Citizen Feedback:</p>
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                          <p className="text-gray-700">{feedback.feedback}</p>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-2">
-                          Submitted: {feedback.date.toLocaleDateString()} at {feedback.date.toLocaleTimeString()}
-                        </p>
-                      </div>
-
-                      {/* Reply Section */}
-                      {feedback.status === "pending" && (
-                        <div className="border-t pt-4">
-                          <Label htmlFor={`reply-${feedback.id}`} className="text-sm font-medium">
-                            Government Response
-                          </Label>
-                          <div className="mt-2 space-y-3">
-                            <Textarea
-                              id={`reply-${feedback.id}`}
-                              placeholder="Provide a detailed response addressing the citizen's issue and feedback..."
-                              value={selectedFeedback === feedback.id ? replyText : ""}
-                              onChange={(e) => {
-                                setSelectedFeedback(feedback.id)
-                                setReplyText(e.target.value)
-                              }}
-                              className="min-h-[100px]"
-                            />
-                            <div className="flex space-x-2">
-                              <Button
-                                onClick={() => handleFeedbackReply(feedback.id)}
-                                disabled={!replyText.trim()}
-                                className="bg-emerald-600 hover:bg-emerald-700"
-                              >
-                                <Send className="w-4 h-4 mr-2" />
-                                Send Response
-                              </Button>
-                              <Button
-                                onClick={() => {
-                                  setCitizenFeedback((prev) =>
-                                    prev.map((f) => (f.id === feedback.id ? { ...f, status: "acknowledged" } : f)),
-                                  )
-                                  alert("Issue acknowledged! Citizen will be notified that we're working on it.")
-                                }}
-                                variant="outline"
-                              >
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                                Acknowledge Issue
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Existing Reply */}
-                      {feedback.reply && (
-                        <div className="border-t pt-4">
-                          <p className="text-sm font-medium text-gray-600 mb-2">Your Response:</p>
-                          <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-lg">
-                            <p className="text-sm text-emerald-800">{feedback.reply}</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+            <div>
+              <h3 className="font-semibold mb-4">Product</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Features
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Scenarios
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Demo
+                  </Link>
+                </li>
+              </ul>
             </div>
-          </TabsContent>
-
-          {/* Service Approvals Tab */}
-          <TabsContent value="approvals" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Service Access Approvals</h2>
-                <p className="text-gray-600">Review and approve citizen service applications</p>
-              </div>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filter by Urgency
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export Applications
-                </Button>
-              </div>
+            <div>
+              <h3 className="font-semibold mb-4">Company</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    About
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Careers
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Contact
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Support
+                  </Link>
+                </li>
+              </ul>
             </div>
-
-            <div className="grid gap-6">
-              {serviceRequests.map((request) => (
-                <Card key={request.id} className="border-l-4 border-l-blue-500">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <request.serviceIcon className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{request.citizenName}</p>
-                          <p className="text-sm text-gray-600">{request.email}</p>
-                          <p className="text-xs text-gray-500">Request ID: {request.id}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge className={getPriorityColor(request.priority)} variant="outline">
-                          {request.priority.toUpperCase()}
-                        </Badge>
-                        <Badge className={getStatusColor(request.status)}>{request.status}</Badge>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {/* Service Details */}
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600 mb-1">Service Type</p>
-                          <p className="text-gray-900">{request.service}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-600 mb-1">Request Type</p>
-                          <p className="text-gray-900">{request.requestType}</p>
-                        </div>
-                      </div>
-
-                      {/* Description */}
-                      <div>
-                        <p className="text-sm font-medium text-gray-600 mb-1">Application Description</p>
-                        <p className="text-gray-700">{request.description}</p>
-                      </div>
-
-                      {/* Urgent Issue */}
-                      {request.urgentIssue && (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <AlertTriangle className="w-4 h-4 text-red-600" />
-                            <span className="text-sm font-medium text-red-800">Urgent Situation:</span>
-                          </div>
-                          <p className="text-sm text-red-700">{request.urgentIssue}</p>
-                        </div>
-                      )}
-
-                      {/* Application Details */}
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <p className="text-sm font-medium text-gray-600 mb-3">Application Details:</p>
-                        <div className="grid md:grid-cols-2 gap-3 text-sm">
-                          {Object.entries(request.applicationDetails).map(([key, value]) => (
-                            <div key={key}>
-                              <span className="font-medium text-gray-700">
-                                {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}:
-                              </span>
-                              <p className="text-gray-600 mt-1">{value}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Documents */}
-                      <div>
-                        <p className="text-sm font-medium text-gray-600 mb-2">Submitted Documents:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {request.documents.map((doc, index) => (
-                            <Badge key={index} variant="outline" className="cursor-pointer hover:bg-gray-100">
-                              <Eye className="w-3 h-3 mr-1" />
-                              {doc}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Timeline */}
-                      <div className="flex items-center justify-between text-sm text-gray-500 border-t pt-4">
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            Submitted: {request.submittedDate.toLocaleDateString()}
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="w-4 h-4 mr-1" />
-                            {Math.ceil(
-                              (new Date().getTime() - request.submittedDate.getTime()) / (1000 * 60 * 60 * 24),
-                            )}{" "}
-                            days pending
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      {request.status === "pending" && (
-                        <div className="flex space-x-3 pt-4 border-t">
-                          <Button
-                            onClick={() => handleServiceRequest(request.id, "approve")}
-                            className="bg-green-600 hover:bg-green-700 flex-1"
-                          >
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Approve Application
-                          </Button>
-                          <Button
-                            onClick={() => {
-                              const reason = prompt("Please provide a reason for rejection (optional):")
-                              handleServiceRequest(request.id, "reject", reason)
-                            }}
-                            variant="destructive"
-                            className="flex-1"
-                          >
-                            <XCircle className="w-4 h-4 mr-2" />
-                            Reject Application
-                          </Button>
-                        </div>
-                      )}
-
-                      {/* Status Messages */}
-                      {request.status === "approved" && (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                          <div className="flex items-center space-x-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <span className="text-sm font-medium text-green-800">
-                              Application Approved - Citizen notified with next steps
-                            </span>
-                          </div>
-                        </div>
-                      )}
-
-                      {request.status === "rejected" && (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                          <div className="flex items-center space-x-2">
-                            <XCircle className="w-4 h-4 text-red-600" />
-                            <span className="text-sm font-medium text-red-800">
-                              Application Rejected - Citizen notified with reason and appeal process
-                            </span>
-                          </div>
-                          {request.actionReason && (
-                            <p className="text-sm text-red-700 mt-2">Reason: {request.actionReason}</p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+            <div>
+              <h3 className="font-semibold mb-4">Resources</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Documentation
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    API Reference
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Case Studies
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Blog
+                  </Link>
+                </li>
+              </ul>
             </div>
-          </TabsContent>
-        </Tabs>
-      </main>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 Citizen AI. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
